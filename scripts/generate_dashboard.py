@@ -5,7 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 
 # Path to your downloaded credentials JSON file
-creds_path = 'path/to/your/habit-tracker-key.json'
+creds_path = 'scripts/habit-tracker-key.json'
 
 # Set up Google Sheets access
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
