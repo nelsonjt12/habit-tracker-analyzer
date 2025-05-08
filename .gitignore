@@ -1,0 +1,44 @@
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment
+venv/
+env/
+*.env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Google Sheets API credentials (Never commit sensitive files like these)
+habit-tracker-key.json
+
+# Logs
+*.log
+
+# Python coverage
+.coverage
+.coverage.*
+nosetests.xml
+pytest.xml
+*.cover
+
+# IDE settings
+.idea/
+.vscode/
+
+# Windows system files
+Thumbs.db
+
+# Environment variable file (use this to set sensitive information like API keys)
+.env
+
+# Python package distribution files
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Other system files
+*.swp
