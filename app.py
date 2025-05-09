@@ -1,8 +1,13 @@
 import os
 import glob
+import sys
 import pandas as pd
 from flask import Flask, render_template, send_from_directory
 from datetime import datetime
+
+# Import our custom analyzer functions
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from src.analyzer import get_detailed_stats
 
 app = Flask(__name__)
 
@@ -79,11 +84,15 @@ def index():
         
         overall_rate = round(sum(completion_rates.values()) / len(completion_rates) if completion_rates else 0, 2)
         
+        # Get detailed statistics for advanced metrics
+        detailed_stats = get_detailed_stats(df)
+        
         summary_stats = {
             'total_habits': total_habits,
             'date_range': date_range,
             'overall_rate': overall_rate,
-            'habit_rates': completion_rates
+            'habit_rates': completion_rates,
+            'detailed_stats': detailed_stats  # Add detailed stats to the template context
         }
     
     return render_template('index.html', 

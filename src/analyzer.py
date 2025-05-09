@@ -20,6 +20,113 @@ def summarize_habits(df):
         summary[habit] = round(completion_rate * 100, 2)
     return summary
 
+def get_detailed_stats(df):
+    """
+    Calculate detailed statistics including weekly rates, streaks, and consistency metrics.
+    
+    Parameters:
+    -----------
+    df : pandas.DataFrame
+        DataFrame containing the habit tracking data
+        
+    Returns:
+    --------
+    dict
+        Dictionary containing detailed statistics
+    """
+    # Make a copy and ensure Date is datetime
+    df = df.copy()
+    df['Date'] = pd.to_datetime(df['Date'])
+    df = df.sort_values('Date')
+    
+    # Get habit columns (exclude Date and Notes)
+    habit_columns = [col for col in df.columns if col not in ['Date', 'Notes']]
+    
+    # Create binary columns (1 for Yes, 0 for No)
+    for habit in habit_columns:
+        df[f'{habit}_binary'] = df[habit].map(lambda x: 1 if str(x).lower() == 'yes' else 0)
+    
+    # Create weekly statistics
+    df['Year_Week'] = df['Date'].dt.strftime('%Y-%U')  # Format: Year-WeekNumber
+    weekly_stats = {}
+    
+    # Get complete weeks (weeks with 7 days of data)
+    week_counts = df['Year_Week'].value_counts()
+    complete_weeks = week_counts[week_counts >= 5].index.tolist()  # Consider weeks with at least 5 days
+    
+    if complete_weeks:
+        weekly_df = df[df['Year_Week'].isin(complete_weeks)].copy()
+        
+        # Calculate weekly completion rates
+        weekly_rates = {}
+        for habit in habit_columns:
+            rates_by_week = weekly_df.groupby('Year_Week')[f'{habit}_binary'].mean() * 100
+            weekly_rates[habit] = {
+                'avg_weekly_rate': round(rates_by_week.mean(), 2),
+                'best_week': round(rates_by_week.max(), 2),
+                'worst_week': round(rates_by_week.min(), 2),
+                'last_week_rate': round(rates_by_week.iloc[-1] if not rates_by_week.empty else 0, 2)
+            }
+        weekly_stats['weekly_rates'] = weekly_rates
+    else:
+        # Not enough data for weekly stats
+        weekly_stats['weekly_rates'] = None
+    
+    # Calculate streaks (current and historical)
+    streak_stats = {}
+    for habit in habit_columns:
+        # Create helper columns for streak calculation
+        df['streak_group'] = (df[f'{habit}_binary'] != df[f'{habit}_binary'].shift(1)).cumsum()
+        
+        # Find streaks of completed habits (where binary value is 1)
+        completed_streaks = df[df[f'{habit}_binary'] == 1].groupby('streak_group').size()
+        longest_streak = completed_streaks.max() if not completed_streaks.empty else 0
+        
+        # Check if currently on a streak
+        if df[f'{habit}_binary'].iloc[-1] == 1:
+            current_streak = completed_streaks.iloc[-1] if not completed_streaks.empty else 0
+        else:
+            current_streak = 0
+            
+        streak_stats[habit] = {
+            'current_streak': int(current_streak),
+            'longest_streak': int(longest_streak)
+        }
+    
+    # Calculate consistency metrics
+    consistency_stats = {}
+    
+    # Calculate variance for each habit (lower variance = more consistent)
+    variances = {}
+    for habit in habit_columns:
+        variances[habit] = df[f'{habit}_binary'].var()
+    
+    # Find most and least consistent habits
+    if variances:
+        most_consistent = min(variances, key=variances.get)
+        least_consistent = max(variances, key=variances.get)
+        
+        consistency_stats['most_consistent'] = most_consistent
+        consistency_stats['least_consistent'] = least_consistent
+        
+        # Calculate day-to-day consistency (how often the habit status changes)
+        day_to_day = {}
+        for habit in habit_columns:
+            changes = (df[f'{habit}_binary'] != df[f'{habit}_binary'].shift(1)).sum()
+            consistency_score = 100 - (changes / len(df) * 100)  # Higher = more consistent
+            day_to_day[habit] = round(consistency_score, 2)
+        
+        consistency_stats['day_to_day'] = day_to_day
+    
+    # Combine all statistics
+    detailed_stats = {
+        'weekly': weekly_stats,
+        'streaks': streak_stats,
+        'consistency': consistency_stats
+    }
+    
+    return detailed_stats
+
 def plot_completion_rates(df, save_path=None):
     habit_columns = df.columns.drop('Date')
     habit_columns = [col for col in habit_columns if col != 'Notes']  # Exclude Notes column
