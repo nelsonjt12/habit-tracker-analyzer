@@ -101,21 +101,20 @@ def get_detailed_stats(df):
     for habit in habit_columns:
         variances[habit] = df[f'{habit}_binary'].var()
     
-    # Find most and least consistent habits
-    if variances:
-        most_consistent = min(variances, key=variances.get)
-        least_consistent = max(variances, key=variances.get)
+    # Calculate day-to-day consistency (how often the habit status changes)
+    day_to_day = {}
+    for habit in habit_columns:
+        changes = (df[f'{habit}_binary'] != df[f'{habit}_binary'].shift(1)).sum()
+        consistency_score = 100 - (changes / len(df) * 100)  # Higher = more consistent
+        day_to_day[habit] = round(consistency_score, 2)
+    
+    # Find most and least consistent habits based on day-to-day consistency scores
+    if day_to_day:
+        most_consistent = max(day_to_day, key=day_to_day.get)
+        least_consistent = min(day_to_day, key=day_to_day.get)
         
         consistency_stats['most_consistent'] = most_consistent
         consistency_stats['least_consistent'] = least_consistent
-        
-        # Calculate day-to-day consistency (how often the habit status changes)
-        day_to_day = {}
-        for habit in habit_columns:
-            changes = (df[f'{habit}_binary'] != df[f'{habit}_binary'].shift(1)).sum()
-            consistency_score = 100 - (changes / len(df) * 100)  # Higher = more consistent
-            day_to_day[habit] = round(consistency_score, 2)
-        
         consistency_stats['day_to_day'] = day_to_day
     
     # Combine all statistics
