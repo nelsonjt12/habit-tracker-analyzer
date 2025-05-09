@@ -114,13 +114,12 @@
         }
         
         .habit-rate {
-            background-color: var(--primary-light);
+            background-color: var(--card-bg);
             padding: 1.25rem;
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            transition: all 0.3s ease;
+            transition: transform 0.2s ease;
             position: relative;
-            overflow: hidden;
             flex: 1;
             min-width: 250px;
         }
@@ -130,26 +129,18 @@
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
         
-        .habit-rate::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
-        }
-        
         .habit-name {
             font-weight: 600;
-            margin-bottom: 0.5rem;
             font-size: 1.1rem;
+            margin-bottom: 1rem;
             color: var(--primary-color);
+            border-bottom: 1px solid var(--primary-light);
+            padding-bottom: 0.5rem;
         }
         
         .visuals-section {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            grid-template-columns: 1fr;
             gap: 2rem;
             margin-top: 2.5rem;
         }
@@ -258,20 +249,24 @@
         }
     /* Chart styling */
         .visual-title {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
             color: var(--primary-color);
             border-bottom: 2px solid var(--primary-light);
             padding-bottom: 0.5rem;
             position: relative;
+            text-align: center;
         }
         
         .chart-container {
             background: linear-gradient(145deg, #ffffff, #f9fafc);
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 8px;
             margin-top: 0.5rem;
             position: relative;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .chart-container::after {
@@ -633,19 +628,11 @@
             {% if summary_stats.detailed_stats.consistency.most_consistent %}
             <div class="consistency-summary">
                 <div class="consistency-highlight">
-                    <span class="highlight-label tooltip">Most Predictable Habit
-                <div class="tooltip-content">
-                    This habit has the most consistent pattern of yes/no entries, meaning you rarely switch between doing and not doing it (even if you don't do it very often).
-                </div>
-            </span>
+                    <span class="highlight-label">Most Predictable Habit</span>
                     <span class="highlight-value">{{ summary_stats.detailed_stats.consistency.most_consistent }}</span>
                 </div>
                 <div class="consistency-highlight">
-                    <span class="highlight-label tooltip">Least Predictable Habit
-                <div class="tooltip-content">
-                    This habit has the most variable pattern of yes/no entries, with frequent switches between doing and not doing it (even if it has a high completion rate overall).
-                </div>
-            </span>
+                    <span class="highlight-label">Least Predictable Habit</span>
                     <span class="highlight-value">{{ summary_stats.detailed_stats.consistency.least_consistent }}</span>
                 </div>
             </div>
@@ -656,11 +643,7 @@
                     <div class="metric-header">{{ habit }}</div>
                     <div class="consistency-score">
                         <span class="score-value">{{ score }}%</span>
-                        <span class="score-label tooltip">Predictability Score
-                <div class="tooltip-content">
-                    Calculated as 100% minus the percentage of days where you switched from doing to not doing this habit (or vice versa). Higher scores indicate more predictable patterns.
-                </div>
-            </span>
+                        <span class="score-label">Predictability Score</span>
                     </div>
                     <div class="progress-bar">
                         <div class="progress" style="width: '{{ score }}%';" data-value="{{ score }}"></div>

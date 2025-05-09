@@ -144,7 +144,7 @@ def plot_completion_rates(df, save_path=None):
     # Create a custom color palette that matches our UI - same as in plot_habit_trends
     primary_color = "#6366F1"  # Indigo/purple (matches --primary-color)
     secondary_color = "#10B981"  # Teal/green (matches --secondary-color)
-    tertiary_color = "#F43F5E"  # Rose/pink
+    tertiary_color = "#3B82F6"  # Blue that complements the primary color
     
     # Create a fixed color map to ensure consistency across charts
     habit_colors = {
@@ -181,8 +181,8 @@ def plot_completion_rates(df, save_path=None):
             fontweight='bold'
         )
     
-    # Style the title and labels to match our UI
-    plt.title("Habit Completion Rates", fontsize=16, fontweight='bold', color='#1F2937')
+    # Style the labels to match our UI - title removed as requested
+    plt.title("")  # Empty title as it's shown in the section header
     plt.ylabel("Completion (%)", fontsize=12, color='#6B7280')  # Match text color (--text-secondary)
     plt.xlabel("", fontsize=0)  # Remove x-axis label
     
@@ -244,7 +244,7 @@ def plot_habit_trends(df, save_path=None):
     # Create a custom color palette that matches our UI - same as in plot_completion_rates
     primary_color = "#6366F1"  # Indigo/purple (matches --primary-color)
     secondary_color = "#10B981"  # Teal/green (matches --secondary-color)
-    tertiary_color = "#F43F5E"  # Rose/pink
+    tertiary_color = "#3B82F6"  # Blue that complements the primary color
     
     # Create a fixed color map to ensure consistency across charts
     habit_colors = {
@@ -298,8 +298,8 @@ def plot_habit_trends(df, save_path=None):
             fontsize=10
         )
     
-    # Style the title and labels
-    plt.title("Cumulative Habit Completions", fontsize=16, fontweight='bold', color='#1F2937')
+    # Style the labels - title removed as requested
+    plt.title("")  # Empty title as it's shown in the section header
     plt.ylabel("Total Completions", fontsize=12, color='#6B7280')
     plt.xlabel("", fontsize=0)  # Remove x-axis label
     
