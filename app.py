@@ -1,14 +1,30 @@
 import os
 import glob
 import sys
-import pandas as pd
 import json
 from flask import Flask, render_template, send_from_directory, request
 from datetime import datetime
 
-# Import our custom analyzer functions
+# Configure path for imports - we'll lazy load modules when needed
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from src.analyzer import get_detailed_stats
+
+# Lazy load expensive imports only when needed
+pandas_loaded = False
+analyzer_loaded = False
+
+def load_pandas():
+    global pandas_loaded, pd
+    if not pandas_loaded:
+        import pandas as pd
+        pandas_loaded = True
+    return pd
+
+def load_analyzer():
+    global analyzer_loaded, get_detailed_stats
+    if not analyzer_loaded:
+        from src.analyzer import get_detailed_stats
+        analyzer_loaded = True
+    return get_detailed_stats
 
 # Check if we're running in demo mode for portfolio display
 # (when no Google Sheets credentials are available)
@@ -68,7 +84,8 @@ def index():
         latest_data = max(data_files, key=os.path.getmtime)
         # Get the modification date
         latest_date = datetime.fromtimestamp(os.path.getmtime(latest_data)).strftime('%B %d, %Y')
-        # Load data for summary stats
+        # Load data for summary stats - lazy load pandas
+        pd = load_pandas()
         df = pd.read_csv(latest_data)
         
         # Basic statistics
@@ -92,7 +109,8 @@ def index():
         
         overall_rate = round(sum(completion_rates.values()) / len(completion_rates) if completion_rates else 0, 2)
         
-        # Get detailed statistics for advanced metrics
+        # Get detailed statistics for advanced metrics - lazy load analyzer
+        get_detailed_stats = load_analyzer()
         detailed_stats = get_detailed_stats(df)
         
         summary_stats = {
@@ -123,6 +141,8 @@ def create_demo_data():
     # Only create demo data if none exists
     if not os.path.exists(os.path.join(DATA_DIR, 'habit_data_demo.csv')):
         print("Generating demo data for portfolio display")
+        # Lazy load pandas
+        pd = load_pandas()
         # Sample habit data
         data = {
             'Date': pd.date_range('2025-04-22', '2025-05-08').strftime('%Y-%m-%d').tolist(),
@@ -142,15 +162,17 @@ def create_demo_data():
         
         # Generate sample visualizations
         try:
-            from src.analyzer import plot_completion_rates, plot_habit_trends
+            # Import visualization functions only when needed - lazy loading
+            import importlib
+            analyzer = importlib.import_module('src.analyzer')
             
             # Generate bar chart visualization
             bar_plot_path = os.path.join(VISUALS_DIR, 'habit_completion_demo.png')
-            plot_completion_rates(df, save_path=bar_plot_path)
+            analyzer.plot_completion_rates(df, save_path=bar_plot_path)
             
             # Generate line chart for habit trends
             line_plot_path = os.path.join(VISUALS_DIR, 'habit_trends_demo.png')
-            plot_habit_trends(df, save_path=line_plot_path)
+            analyzer.plot_habit_trends(df, save_path=line_plot_path)
         except Exception as e:
             print(f"Error generating demo visualizations: {e}")
 
