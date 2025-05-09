@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker Dashboard</title>
+    <style>
+        /* Simple, clean styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .date-info {
+            font-style: italic;
+            color: #666;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .summary-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .summary-stat {
+            margin-bottom: 10px;
+        }
+        .summary-stat span {
+            font-weight: bold;
+        }
+        .habit-rates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .habit-rate {
+            background-color: #e9f5ff;
+            padding: 10px 15px;
+            border-radius: 5px;
+            min-width: 150px;
+        }
+        .habit-name {
+            font-weight: bold;
+        }
+        .visuals-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .visual-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .visual-container img {
+            width: 100%;
+            height: auto;
+            border: 1px solid #eee;
+        }
+        /* Progress bar styles */
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #4CAF50;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .visuals-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Habit Tracker Dashboard</h1>
+    </div>
+    
+    {% if latest_date %}
+    <div class="date-info">
+        <p>Last updated: {{ latest_date }}</p>
+    </div>
+    {% endif %}
+    
+    {% if summary_stats %}
+    <div class="summary-section">
+        <h2>Summary Statistics</h2>
+        <div class="summary-stat">
+            <p>Tracking <span>{{ summary_stats.total_habits }}</span> habits over the period <span>{{ summary_stats.date_range }}</span></p>
+        </div>
+        <div class="summary-stat">
+            <p>Overall completion rate: <span>{{ summary_stats.overall_rate }}%</span></p>
+            <div class="progress-bar">
+                <div class="progress" style="width: '{{ summary_stats.overall_rate }}%';" data-value="{{ summary_stats.overall_rate }}"></div>
+            </div>
+        </div>
+        
+        <h3>Individual Habit Performance</h3>
+        <div class="habit-rates">
+            {% for habit, rate in summary_stats.habit_rates.items() %}
+            <div class="habit-rate">
+                <div class="habit-name">{{ habit }}</div>
+                <div>{{ rate }}%</div>
+                <div class="progress-bar">
+                    <div class="progress" style="width: '{{ rate }}%';" data-value="{{ rate }}"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="summary-section">
+        <p>No data available. Please run the habit tracking script to generate data.</p>
+    </div>
+    {% endif %}
+    
+    <div class="visuals-section">
+        {% if visual_files %}
+            {% for visual in visual_files %}
+            <div class="visual-container">
+                <img src="{{ url_for('serve_visual', filename=visual) }}" alt="Habit Visualization">
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No visualizations available. Please run the habit tracking script to generate visualizations.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
