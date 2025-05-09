@@ -62,13 +62,16 @@ def index():
         # Find the most recent data file
         latest_data = max(data_files, key=os.path.getmtime)
         # Get the modification date
-        latest_date = datetime.fromtimestamp(os.path.getmtime(latest_data)).strftime('%Y-%m-%d')
+        latest_date = datetime.fromtimestamp(os.path.getmtime(latest_data)).strftime('%B %d, %Y')
         # Load data for summary stats
         df = pd.read_csv(latest_data)
         
         # Basic statistics
         total_habits = len(df.columns) - 1  # Subtract date column
-        date_range = f"{df['Date'].iloc[0]} to {df['Date'].iloc[-1]}"
+        # Convert YYYY-MM-DD dates to Month Day, Year format
+        start_date = datetime.strptime(df['Date'].iloc[0], '%Y-%m-%d').strftime('%B %d, %Y')
+        end_date = datetime.strptime(df['Date'].iloc[-1], '%Y-%m-%d').strftime('%B %d, %Y')
+        date_range = f"{start_date} to {end_date}"
         
         # Calculate overall completion rate
         habit_columns = df.columns.drop('Date')
