@@ -12,7 +12,7 @@ import sys
 
 # Add the project root to the path so we can import from src
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.analyzer import summarize_habits, plot_completion_rates
+from src.analyzer import summarize_habits, plot_completion_rates, plot_habit_trends
 
 # Create output directories if they don't exist
 output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'output')
@@ -56,10 +56,15 @@ if not df.empty:
     for habit, rate in summary.items():
         print(f"{habit}: {rate}%")
     
-    # Generate visualization
-    plot_path = os.path.join(visuals_dir, f'habit_completion_{today}.png')
-    plot_completion_rates(df, save_path=plot_path)
-    print(f"\nVisualization saved to {plot_path}")
+    # Generate bar chart visualization
+    bar_plot_path = os.path.join(visuals_dir, f'habit_completion_{today}.png')
+    plot_completion_rates(df, save_path=bar_plot_path)
+    print(f"\nBar chart visualization saved to {bar_plot_path}")
+    
+    # Generate line chart for habit trends over time
+    line_plot_path = os.path.join(visuals_dir, f'habit_trends_{today}.png')
+    plot_habit_trends(df, save_path=line_plot_path)
+    print(f"Line chart visualization saved to {line_plot_path}")
     
     # Display the latest data
     print("\nLatest records:")

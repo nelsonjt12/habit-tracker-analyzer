@@ -331,7 +331,7 @@
         {% if visual_files %}
             {% for visual in visual_files %}
             <div class="visual-container">
-                <h3 class="visual-title">{{ visual.split('.')[0].replace('_', ' ').title() }}</h3>
+                <h3 class="visual-title">{{ visual.split('_')[0:2]|join(' ')|title }}: All Time</h3>
                 <div class="chart-container">
                     <img src="{{ url_for('serve_visual', filename=visual) }}" alt="Habit Visualization">
                 </div>
