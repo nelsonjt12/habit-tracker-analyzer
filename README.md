@@ -35,8 +35,8 @@ The application expects your Google Sheets to have the following format:
 
 | Date       | Habit1   | Habit2   | Habit3   | Notes     |
 |------------|----------|----------|----------|--------|
-| 2025-05-01 | Yes      | No       | Yes      | Optional notes |
-| 2025-05-02 | Yes      | Yes      | Yes      | More notes |
+| 05/01/2025 | Yes      | No       | Yes      | Optional notes |
+| 05/02/2025 | Yes      | Yes      | Yes      | More notes |
 
 Dates should be in MM/DD/YYYY format. Habits are tracked as 'Yes' (completed) or 'No' (not completed). The Notes column is optional.
 
