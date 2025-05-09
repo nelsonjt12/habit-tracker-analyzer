@@ -153,6 +153,7 @@
             transition: transform 0.3s ease;
             overflow: hidden;
             position: relative;
+            text-align: center;
         }
         
         .visual-container:hover {
@@ -256,6 +257,8 @@
             padding-bottom: 0.5rem;
             position: relative;
             text-align: center;
+            display: block;
+            width: 100%;
         }
         
         .chart-container {
@@ -497,6 +500,24 @@
             border-left: 3px solid var(--primary-color);
         }
         
+        /* Special positioning for visual title tooltips */
+        .visual-title.tooltip .tooltip-content {
+            bottom: auto;
+            top: 100%;
+            margin-top: 10px;
+            width: 80%;
+            max-width: 500px;
+            z-index: 10;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .visual-title.tooltip {
+            cursor: help;
+            position: relative;
+            display: inline-block;
+        }
+        
         .tooltip .tooltip-content::after {
             content: "";
             position: absolute;
@@ -506,6 +527,12 @@
             border-width: 5px;
             border-style: solid;
             border-color: var(--card-bg) transparent transparent transparent;
+        }
+        
+        .visual-title.tooltip .tooltip-content::after {
+            top: auto;
+            bottom: 100%;
+            border-color: transparent transparent var(--card-bg) transparent;
         }
         
         .tooltip:hover .tooltip-content {
@@ -667,7 +694,17 @@
         {% if visual_files %}
             {% for visual in visual_files %}
             <div class="visual-container">
-                <h3 class="visual-title">{{ visual.split('_')[0:2]|join(' ')|title }}: All Time</h3>
+                <h3 class="visual-title tooltip">{{ visual.split('_')[0:2]|join(' ')|title }}: All Time
+                    {% if 'completion' in visual %}
+                    <div class="tooltip-content">
+                        This chart shows the overall completion rate for each tracked habit as a percentage. Higher bars indicate habits you complete more consistently.
+                    </div>
+                    {% elif 'trends' in visual %}
+                    <div class="tooltip-content">
+                        This chart tracks your cumulative habit completions over time. Steeper slopes indicate periods of more consistent habit completion.
+                    </div>
+                    {% endif %}
+                </h3>
                 <div class="chart-container">
                     <img src="{{ url_for('serve_visual', filename=visual) }}" alt="Habit Visualization">
                 </div>
