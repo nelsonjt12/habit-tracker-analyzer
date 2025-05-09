@@ -42,3 +42,12 @@ build/
 
 # Other system files
 *.swp
+
+# Render
+render.yaml
+render.env
+render.lock
+render.log
+
+# Deployment
+DEPLOYMENT.md
