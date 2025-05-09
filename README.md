@@ -94,4 +94,4 @@ The application expects your Google Sheets to follow this structure:
 
 ## Contact
 
-[Your Name](mailto:julianntnelson@gmail.com) - [LinkedIn](https://www.linkedin.com/in/juliannnelson/)
+[Juliann Nelson](mailto:julianntnelson@gmail.com) - [LinkedIn](https://www.linkedin.com/in/juliannnelson/)
