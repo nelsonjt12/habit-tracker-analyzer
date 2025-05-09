@@ -17,7 +17,35 @@ def index():
     """Main page that displays habit tracking dashboard"""
     # Get list of available visualizations
     visual_files = glob.glob(os.path.join(VISUALS_DIR, '*.png'))
-    visual_files = [os.path.basename(f) for f in visual_files]
+    
+    # Group files by type (remove date from filename to group them)
+    visual_types = {}
+    for file_path in visual_files:
+        base_name = os.path.basename(file_path)
+        # Split by date pattern (assumes format like 'habit_completion_2025-05-08.png')
+        file_parts = base_name.split('_')
+        if len(file_parts) > 1:
+            # Get everything before the date to use as type key
+            file_type = '_'.join(file_parts[:-1])  # e.g., 'habit_completion'
+            # Add to dictionary with creation time as value for sorting
+            if file_type not in visual_types:
+                visual_types[file_type] = []
+            visual_types[file_type].append({
+                'path': file_path,
+                'name': base_name,
+                'time': os.path.getmtime(file_path)
+            })
+    
+    # For each type, only keep the most recent file
+    latest_visuals = []
+    for file_type, files in visual_types.items():
+        # Sort by modification time, newest first
+        sorted_files = sorted(files, key=lambda x: x['time'], reverse=True)
+        if sorted_files:
+            latest_visuals.append(sorted_files[0]['name'])
+    
+    # Final list of visualization files to display
+    visual_files = latest_visuals
     
     # Get the latest data file for summary statistics
     data_files = glob.glob(os.path.join(DATA_DIR, '*.csv'))
