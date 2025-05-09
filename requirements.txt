@@ -6,3 +6,4 @@ jupyter
 gspread
 oauth2client
 flask
+gunicorn==20.1.0

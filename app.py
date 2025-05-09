@@ -2,12 +2,17 @@ import os
 import glob
 import sys
 import pandas as pd
-from flask import Flask, render_template, send_from_directory
+import json
+from flask import Flask, render_template, send_from_directory, request
 from datetime import datetime
 
 # Import our custom analyzer functions
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from src.analyzer import get_detailed_stats
+
+# Check if we're running in demo mode for portfolio display
+# (when no Google Sheets credentials are available)
+DEMO_MODE = os.environ.get('DEMO_MODE', 'False').lower() == 'true'
 
 app = Flask(__name__)
 
@@ -108,10 +113,59 @@ def serve_visual(filename):
     """Serve visualization images"""
     return send_from_directory(VISUALS_DIR, filename)
 
+# Make sure output directories exist
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(VISUALS_DIR, exist_ok=True)
+
+# Create sample data file for demo mode
+def create_demo_data():
+    """Creates sample data for portfolio display when no Google Sheets connection is available"""
+    # Only create demo data if none exists
+    if not os.path.exists(os.path.join(DATA_DIR, 'habit_data_demo.csv')):
+        print("Generating demo data for portfolio display")
+        # Sample habit data
+        data = {
+            'Date': pd.date_range('2025-04-22', '2025-05-08').strftime('%Y-%m-%d').tolist(),
+            'Walk': ['Yes', 'Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'Yes', 'No', 'Yes', 'No', 'No', 'No', 'Yes', 'Yes', 'Yes', 'No'],
+            'Resistance Training': ['No', 'Yes', 'No', 'No', 'Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'No', 'No', 'No', 'No', 'No', 'Yes', 'No'],
+            'Yoga': ['Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'No', 'No', 'Yes', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'Yes'],
+            'Notes': ['15 walk outside', 'Did 10 counter pushups; 30 min treadmill walk', '', 'Short yoga sequence before bed', 
+                      '30 min walk; 10 counter pushups and a few resistance exercises', '', 'Evening 30 min walk on treadmill',
+                      'Hour long walk on the treadmill; 10 counter pushups', 'Tried out a new yoga channel on YT and really enjoyed it',
+                      '30 min treadmill walk', '', '', '', '45-min walk', 'Outdoor walk to shake off some frustration', 'Full workout', 'Yoga in the morning']
+        }
+        df = pd.DataFrame(data)
+        
+        # Save demo data
+        demo_file = os.path.join(DATA_DIR, 'habit_data_demo.csv')
+        df.to_csv(demo_file, index=False)
+        
+        # Generate sample visualizations
+        try:
+            from src.analyzer import plot_completion_rates, plot_habit_trends
+            
+            # Generate bar chart visualization
+            bar_plot_path = os.path.join(VISUALS_DIR, 'habit_completion_demo.png')
+            plot_completion_rates(df, save_path=bar_plot_path)
+            
+            # Generate line chart for habit trends
+            line_plot_path = os.path.join(VISUALS_DIR, 'habit_trends_demo.png')
+            plot_habit_trends(df, save_path=line_plot_path)
+        except Exception as e:
+            print(f"Error generating demo visualizations: {e}")
+
+# Generate demo data if in demo mode
+if DEMO_MODE:
+    create_demo_data()
+
 if __name__ == '__main__':
     # Create templates directory if it doesn't exist
     templates_dir = os.path.join(BASE_DIR, 'templates')
     os.makedirs(templates_dir, exist_ok=True)
     
+    # Determine if running locally or in production
+    port = int(os.environ.get('PORT', 5000))
+    debug = os.environ.get('FLASK_ENV') != 'production'
+    
     # Start the Flask application
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=debug, port=port)
