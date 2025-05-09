@@ -112,7 +112,7 @@
         <div class="summary-stat">
             <p>Overall completion rate: <span>{{ summary_stats.overall_rate }}%</span></p>
             <div class="progress-bar">
-                <div class="progress" style="width: {{ summary_stats.overall_rate }}%"></div>
+                <div class="progress" style="width: '{{ summary_stats.overall_rate }}%';" data-value="{{ summary_stats.overall_rate }}"></div>
             </div>
         </div>
         
@@ -123,7 +123,7 @@
                 <div class="habit-name">{{ habit }}</div>
                 <div>{{ rate }}%</div>
                 <div class="progress-bar">
-                    <div class="progress" style="width: {{ rate }}%"></div>
+                    <div class="progress" style="width: '{{ rate }}%';" data-value="{{ rate }}"></div>
                 </div>
             </div>
             {% endfor %}
