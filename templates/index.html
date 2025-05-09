@@ -238,7 +238,7 @@
                 grid-template-columns: 1fr;
             }
             
-            .habit-rates {
+            .habit-rates, .metrics-grid {
                 flex-direction: column;
             }
             
@@ -311,8 +311,9 @@
         }
         
         .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
             gap: 1.5rem;
             margin-top: 1rem;
         }
@@ -324,6 +325,8 @@
             box-shadow: var(--shadow);
             transition: transform 0.2s ease;
             position: relative;
+            flex: 1;
+            min-width: 250px;
         }
         
         .metric-card:hover {
