@@ -1,8 +1,13 @@
 import os
 import glob
+import sys
 import pandas as pd
 from flask import Flask, render_template, send_from_directory
 from datetime import datetime
+
+# Import our custom analyzer functions
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from src.analyzer import get_detailed_stats
 
 app = Flask(__name__)
 
@@ -17,7 +22,35 @@ def index():
     """Main page that displays habit tracking dashboard"""
     # Get list of available visualizations
     visual_files = glob.glob(os.path.join(VISUALS_DIR, '*.png'))
-    visual_files = [os.path.basename(f) for f in visual_files]
+    
+    # Group files by type (remove date from filename to group them)
+    visual_types = {}
+    for file_path in visual_files:
+        base_name = os.path.basename(file_path)
+        # Split by date pattern (assumes format like 'habit_completion_2025-05-08.png')
+        file_parts = base_name.split('_')
+        if len(file_parts) > 1:
+            # Get everything before the date to use as type key
+            file_type = '_'.join(file_parts[:-1])  # e.g., 'habit_completion'
+            # Add to dictionary with creation time as value for sorting
+            if file_type not in visual_types:
+                visual_types[file_type] = []
+            visual_types[file_type].append({
+                'path': file_path,
+                'name': base_name,
+                'time': os.path.getmtime(file_path)
+            })
+    
+    # For each type, only keep the most recent file
+    latest_visuals = []
+    for file_type, files in visual_types.items():
+        # Sort by modification time, newest first
+        sorted_files = sorted(files, key=lambda x: x['time'], reverse=True)
+        if sorted_files:
+            latest_visuals.append(sorted_files[0]['name'])
+    
+    # Final list of visualization files to display
+    visual_files = latest_visuals
     
     # Get the latest data file for summary statistics
     data_files = glob.glob(os.path.join(DATA_DIR, '*.csv'))
@@ -51,11 +84,15 @@ def index():
         
         overall_rate = round(sum(completion_rates.values()) / len(completion_rates) if completion_rates else 0, 2)
         
+        # Get detailed statistics for advanced metrics
+        detailed_stats = get_detailed_stats(df)
+        
         summary_stats = {
             'total_habits': total_habits,
             'date_range': date_range,
             'overall_rate': overall_rate,
-            'habit_rates': completion_rates
+            'habit_rates': completion_rates,
+            'detailed_stats': detailed_stats  # Add detailed stats to the template context
         }
     
     return render_template('index.html', 
