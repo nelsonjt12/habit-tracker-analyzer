@@ -27,7 +27,6 @@ habit-tracker-analyzer/
 ├── scripts/ # Scripts for dashboard generation
 ├── src/ # Core analysis functions
 ├── templates/ # HTML templates for Flask dashboard
-├── notebooks/ # Jupyter notebook for exploratory data analysis
 
 ## Data Format
 
