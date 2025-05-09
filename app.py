@@ -45,7 +45,11 @@ def index():
             numeric_values = df[habit].map(lambda x: 1 if str(x).lower() == 'yes' else 0)
             completion_rates[habit] = round(numeric_values.mean() * 100, 2)
         
-        overall_rate = round(sum(completion_rates.values()) / len(completion_rates), 2)
+        # Remove the 'Notes' habit if it exists
+        if 'Notes' in completion_rates:
+            del completion_rates['Notes']
+        
+        overall_rate = round(sum(completion_rates.values()) / len(completion_rates) if completion_rates else 0, 2)
         
         summary_stats = {
             'total_habits': total_habits,
