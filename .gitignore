@@ -56,7 +56,8 @@ DEPLOYMENT.md
 .windsurf/
 
 # Generated data and visualizations
-output/
+output/data/*.csv
+output/visuals/*.png
 
 # macOS specific files
 .DS_Store
