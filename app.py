@@ -138,43 +138,42 @@ os.makedirs(VISUALS_DIR, exist_ok=True)
 # Create sample data file for demo mode
 def create_demo_data():
     """Creates sample data for portfolio display when no Google Sheets connection is available"""
-    # Only create demo data if none exists
-    if not os.path.exists(os.path.join(DATA_DIR, 'habit_data_demo.csv')):
-        print("Generating demo data for portfolio display")
-        # Lazy load pandas
-        pd = load_pandas()
-        # Sample habit data
-        data = {
-            'Date': pd.date_range('2025-04-22', '2025-05-08').strftime('%Y-%m-%d').tolist(),
-            'Walk': ['Yes', 'Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'Yes', 'No', 'Yes', 'No', 'No', 'No', 'Yes', 'Yes', 'Yes', 'No'],
-            'Resistance Training': ['No', 'Yes', 'No', 'No', 'Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'No', 'No', 'No', 'No', 'No', 'Yes', 'No'],
-            'Yoga': ['Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'No', 'No', 'Yes', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'Yes'],
-            'Notes': ['15 walk outside', 'Did 10 counter pushups; 30 min treadmill walk', '', 'Short yoga sequence before bed', 
-                      '30 min walk; 10 counter pushups and a few resistance exercises', '', 'Evening 30 min walk on treadmill',
-                      'Hour long walk on the treadmill; 10 counter pushups', 'Tried out a new yoga channel on YT and really enjoyed it',
-                      '30 min treadmill walk', '', '', '', '45-min walk', 'Outdoor walk to shake off some frustration', 'Full workout', 'Yoga in the morning']
-        }
-        df = pd.DataFrame(data)
+    # Always recreate demo data when in demo mode
+    print("Generating/refreshing demo data for portfolio display")
+    # Lazy load pandas
+    pd = load_pandas()
+    # Sample habit data
+    data = {
+        'Date': pd.date_range('2025-04-22', '2025-05-08').strftime('%Y-%m-%d').tolist(),
+        'Walk': ['Yes', 'Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'Yes', 'No', 'Yes', 'No', 'No', 'No', 'Yes', 'Yes', 'Yes', 'No'],
+        'Resistance Training': ['No', 'Yes', 'No', 'No', 'Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'No', 'No', 'No', 'No', 'No', 'Yes', 'No'],
+        'Yoga': ['Yes', 'No', 'No', 'Yes', 'No', 'Yes', 'No', 'No', 'Yes', 'No', 'No', 'No', 'No', 'No', 'No', 'No', 'Yes'],
+        'Notes': ['15 walk outside', 'Did 10 counter pushups; 30 min treadmill walk', '', 'Short yoga sequence before bed', 
+                  '30 min walk; 10 counter pushups and a few resistance exercises', '', 'Evening 30 min walk on treadmill',
+                  'Hour long walk on the treadmill; 10 counter pushups', 'Tried out a new yoga channel on YT and really enjoyed it',
+                  '30 min treadmill walk', '', '', '', '45-min walk', 'Outdoor walk to shake off some frustration', 'Full workout', 'Yoga in the morning']
+    }
+    df = pd.DataFrame(data)
+    
+    # Save demo data
+    demo_file = os.path.join(DATA_DIR, 'habit_data_demo.csv')
+    df.to_csv(demo_file, index=False)
+    
+    # Generate sample visualizations
+    try:
+        # Import visualization functions only when needed - lazy loading
+        import importlib
+        analyzer = importlib.import_module('src.analyzer')
         
-        # Save demo data
-        demo_file = os.path.join(DATA_DIR, 'habit_data_demo.csv')
-        df.to_csv(demo_file, index=False)
+        # Generate bar chart visualization
+        bar_plot_path = os.path.join(VISUALS_DIR, 'habit_completion_demo.png')
+        analyzer.plot_completion_rates(df, save_path=bar_plot_path)
         
-        # Generate sample visualizations
-        try:
-            # Import visualization functions only when needed - lazy loading
-            import importlib
-            analyzer = importlib.import_module('src.analyzer')
-            
-            # Generate bar chart visualization
-            bar_plot_path = os.path.join(VISUALS_DIR, 'habit_completion_demo.png')
-            analyzer.plot_completion_rates(df, save_path=bar_plot_path)
-            
-            # Generate line chart for habit trends
-            line_plot_path = os.path.join(VISUALS_DIR, 'habit_trends_demo.png')
-            analyzer.plot_habit_trends(df, save_path=line_plot_path)
-        except Exception as e:
-            print(f"Error generating demo visualizations: {e}")
+        # Generate line chart for habit trends
+        line_plot_path = os.path.join(VISUALS_DIR, 'habit_trends_demo.png')
+        analyzer.plot_habit_trends(df, save_path=line_plot_path)
+    except Exception as e:
+        print(f"Error generating demo visualizations: {e}")
 
 # Generate demo data if in demo mode
 if DEMO_MODE:
